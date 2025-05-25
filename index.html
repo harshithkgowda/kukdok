@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Screaming Hen Game</title>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            font-family: Arial, sans-serif;
+        }
+        #gameContainer {
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        #instructions {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255,255,255,0.95);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            max-width: 400px;
+            z-index: 1000;
+        }
+        #instructions h2 {
+            color: #2a5298;
+            margin-top: 0;
+            font-size: 24px;
+        }
+        #instructions p {
+            margin: 10px 0;
+            color: #333;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        .key-instruction {
+            background: #f0f0f0;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin: 5px 0;
+            display: inline-block;
+        }
+        .level-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255,255,255,0.9);
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            color: #2a5298;
+        }
+    </style>
+</head>
+<body>
+    <div id="instructions">
+        <h2>🐔 Screaming Hen Game</h2>
+        <p class="key-instruction">⬅️ ➡️ Arrow keys to move left/right</p>
+        <p class="key-instruction">🗣️ Scream to make the hen jump!</p>
+        <p>The longer you scream, the higher you jump!</p>
+        <p>Collect all coins to advance to the next level!</p>
+        <p>Complete all 3 levels to win!</p>
+    </div>
+    <div id="gameContainer"></div>
+    <script src="game.js"></script>
+</body>
+</html>
