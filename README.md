@@ -2,6 +2,9 @@
 
 A fun interactive game where you control a hen using your voice! Scream to make the hen jump - the longer you scream, the higher it jumps!
 
+Try It Here
+https://kukdok.vercel.app/
+
 ## How to Play
 
 1. Allow microphone access when prompted
