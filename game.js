@@ -31,94 +31,21 @@ let screamDuration = 0;
 let screamThreshold = 100;
 let screamIndicator;
 let clouds;
-let stars;
-let level = 1;
-let levelText;
-let coins;
-let coinSound;
-let backgroundMusic;
-let currentLevel = 1;
-let maxLevel = 3;
-
-const levelConfig = {
-    1: {
-        platforms: [
-            { x: 400, y: 568, scale: 2 },
-            { x: 600, y: 400 },
-            { x: 50, y: 250 },
-            { x: 750, y: 220 }
-        ],
-        background: 'sky1',
-        coinsCount: 5
-    },
-    2: {
-        platforms: [
-            { x: 400, y: 568, scale: 2 },
-            { x: 600, y: 450 },
-            { x: 200, y: 350 },
-            { x: 50, y: 250 },
-            { x: 750, y: 200 }
-        ],
-        background: 'sky2',
-        coinsCount: 8
-    },
-    3: {
-        platforms: [
-            { x: 400, y: 568, scale: 2 },
-            { x: 600, y: 450 },
-            { x: 200, y: 350 },
-            { x: 50, y: 250 },
-            { x: 750, y: 200 },
-            { x: 400, y: 150 },
-            { x: 100, y: 100 }
-        ],
-        background: 'sky3',
-        coinsCount: 10
-    }
-};
 
 function preload() {
     // Load game assets
-    this.load.image('sky1', 'https://labs.phaser.io/assets/skies/space3.png');
-    this.load.image('sky2', 'https://labs.phaser.io/assets/skies/deep-space.png');
-    this.load.image('sky3', 'https://labs.phaser.io/assets/skies/nebula.png');
+    this.load.image('sky', 'https://labs.phaser.io/assets/skies/space3.png');
     this.load.image('ground', 'https://labs.phaser.io/assets/sprites/platform.png');
     this.load.image('cloud', 'https://labs.phaser.io/assets/sprites/cloud.png');
-    this.load.image('star', 'https://labs.phaser.io/assets/sprites/star.png');
-    this.load.image('coin', 'https://labs.phaser.io/assets/sprites/coin.png');
     this.load.spritesheet('hen', 'https://labs.phaser.io/assets/sprites/dude.png', { 
         frameWidth: 32, 
         frameHeight: 48 
     });
-    this.load.audio('coin_sound', 'https://labs.phaser.io/assets/audio/coin.wav');
-    this.load.audio('background_music', 'https://labs.phaser.io/assets/audio/theme.mp3');
 }
 
-function createLevel(level) {
-    // Clear existing objects
-    if (platforms) platforms.clear(true, true);
-    if (coins) coins.clear(true, true);
-    if (clouds) clouds.clear(true, true);
-
-    // Set background
-    this.add.image(400, 300, levelConfig[level].background);
-
-    // Create platforms
-    platforms = this.physics.add.staticGroup();
-    levelConfig[level].platforms.forEach(platform => {
-        const plat = platforms.create(platform.x, platform.y, 'ground');
-        if (platform.scale) plat.setScale(platform.scale).refreshBody();
-    });
-
-    // Create coins
-    coins = this.physics.add.group();
-    for (let i = 0; i < levelConfig[level].coinsCount; i++) {
-        const x = Phaser.Math.Between(50, 750);
-        const y = Phaser.Math.Between(50, 450);
-        const coin = coins.create(x, y, 'coin');
-        coin.setBounceY(0.4);
-        coin.setCollideWorldBounds(true);
-    }
+function create() {
+    // Add background
+    this.add.image(400, 300, 'sky');
 
     // Add clouds
     clouds = this.add.group();
@@ -131,23 +58,14 @@ function createLevel(level) {
         cloud.speed = Phaser.Math.Between(0.5, 2);
     }
 
-    // Reset hen position
-    hen.setPosition(100, 450);
+    // Create platforms group
+    platforms = this.physics.add.staticGroup();
 
-    // Update level text
-    levelText.setText('Level: ' + level);
-
-    // Add colliders
-    this.physics.add.collider(hen, platforms);
-    this.physics.add.collider(coins, platforms);
-    this.physics.add.overlap(hen, coins, collectCoin, null, this);
-}
-
-function create() {
-    // Add sounds
-    coinSound = this.sound.add('coin_sound');
-    backgroundMusic = this.sound.add('background_music', { loop: true, volume: 0.5 });
-    backgroundMusic.play();
+    // Create ground and platforms
+    platforms.create(400, 568, 'ground').setScale(2).refreshBody();
+    platforms.create(600, 400, 'ground');
+    platforms.create(50, 250, 'ground');
+    platforms.create(750, 220, 'ground');
 
     // Create hen sprite
     hen = this.physics.add.sprite(100, 450, 'hen');
@@ -175,16 +93,12 @@ function create() {
         repeat: -1
     });
 
-    // Add score and level text
+    // Add collision between hen and platforms
+    this.physics.add.collider(hen, platforms);
+
+    // Add score text
     scoreText = this.add.text(16, 16, 'Score: 0', { 
         fontSize: '32px', 
-        fill: '#fff',
-        stroke: '#000',
-        strokeThickness: 4
-    });
-
-    levelText = this.add.text(16, 56, 'Level: 1', {
-        fontSize: '32px',
         fill: '#fff',
         stroke: '#000',
         strokeThickness: 4
@@ -196,34 +110,6 @@ function create() {
 
     // Initialize audio context
     initAudio();
-
-    // Create initial level
-    createLevel.call(this, currentLevel);
-}
-
-function collectCoin(hen, coin) {
-    coin.destroy();
-    coinSound.play();
-    score += 10;
-    scoreText.setText('Score: ' + score);
-
-    // Check if level is complete
-    if (coins.countActive(true) === 0) {
-        if (currentLevel < maxLevel) {
-            currentLevel++;
-            createLevel.call(this, currentLevel);
-        } else {
-            // Game complete
-            this.add.text(400, 300, 'Congratulations!\nYou completed all levels!', {
-                fontSize: '48px',
-                fill: '#fff',
-                stroke: '#000',
-                strokeThickness: 6,
-                align: 'center'
-            }).setOrigin(0.5);
-            this.physics.pause();
-        }
-    }
 }
 
 function update() {
@@ -261,7 +147,10 @@ function update() {
                 screamDuration = 0;
             }
             screamDuration++;
+            // Make hen jump higher based on scream duration
             hen.setVelocityY(-300 - Math.min(screamDuration * 5, 200));
+            score += 10;
+            scoreText.setText('Score: ' + score);
 
             // Update scream indicator
             screamIndicator.alpha = 1;
@@ -276,6 +165,7 @@ function update() {
 }
 
 function initAudio() {
+    // Request microphone access
     navigator.mediaDevices.getUserMedia({ audio: true })
         .then(stream => {
             audioContext = new (window.AudioContext || window.webkitAudioContext)();
